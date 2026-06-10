@@ -339,6 +339,7 @@ export default function PlanningPage() {
           setChangingEntry(null)
         }}
         onSelect={handleSelectRecipe}
+        userId={user!.id}
       />
 
       {/* Meal Detail Drawer */}

@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useCreateRecipe } from '../../hooks/use-recipes'
 
 interface QuickRecipeFormProps {
+  userId: string
   onSaved: (recipeId: string, recipeName: string) => void
   onCancel: () => void
 }
 
-export default function QuickRecipeForm({ onSaved, onCancel }: QuickRecipeFormProps) {
+export default function QuickRecipeForm({ userId, onSaved, onCancel }: QuickRecipeFormProps) {
   const createRecipe = useCreateRecipe()
 
   const [name, setName] = useState('')
@@ -38,6 +39,7 @@ export default function QuickRecipeForm({ onSaved, onCancel }: QuickRecipeFormPr
           is_quick: isQuick,
         },
         ingredients: [],
+        userId,
       })
       onSaved(recipe.id, recipe.name)
     } catch (err) {

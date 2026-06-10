@@ -6,12 +6,14 @@ interface RecipeSelectorModalProps {
   open: boolean
   onClose: () => void
   onSelect: (recipeId: string, recipeName: string) => void
+  userId: string
 }
 
 export default function RecipeSelectorModal({
   open,
   onClose,
   onSelect,
+  userId,
 }: RecipeSelectorModalProps) {
   const [search, setSearch] = useState('')
   const [showQuickForm, setShowQuickForm] = useState(false)
@@ -123,6 +125,7 @@ export default function RecipeSelectorModal({
         <div className="border-t border-stone-100 px-4 py-3">
           {showQuickForm ? (
             <QuickRecipeForm
+              userId={userId}
               onSaved={handleQuickSaved}
               onCancel={() => setShowQuickForm(false)}
             />
