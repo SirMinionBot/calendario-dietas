@@ -187,79 +187,82 @@ CREATE POLICY "me_delete_own" ON meal_entries FOR DELETE TO authenticated USING 
 -- SEED DATA
 -- ============================================================
 
--- Root categories
+-- Root categories (with fixed UUIDs so sub-categories can reference them)
 INSERT INTO ingredient_categories (id, name, parent_id) VALUES
-  ('cat-001', 'Carnes y Proteínas', NULL),
-  ('cat-002', 'Verduras y Hortalizas', NULL),
-  ('cat-003', 'Frutas', NULL),
-  ('cat-004', 'Cereales y Tubérculos', NULL),
-  ('cat-005', 'Legumbres', NULL),
-  ('cat-006', 'Lácteos y Huevos', NULL),
-  ('cat-007', 'Aceites y Grasas', NULL),
-  ('cat-008', 'Condimentos y Especias', NULL);
+  ('a0000000-0000-0000-0000-000000000001', 'Carnes y Proteínas', NULL),
+  ('a0000000-0000-0000-0000-000000000002', 'Verduras y Hortalizas', NULL),
+  ('a0000000-0000-0000-0000-000000000003', 'Frutas', NULL),
+  ('a0000000-0000-0000-0000-000000000004', 'Cereales y Tubérculos', NULL),
+  ('a0000000-0000-0000-0000-000000000005', 'Legumbres', NULL),
+  ('a0000000-0000-0000-0000-000000000006', 'Lácteos y Huevos', NULL),
+  ('a0000000-0000-0000-0000-000000000007', 'Aceites y Grasas', NULL),
+  ('a0000000-0000-0000-0000-000000000008', 'Condimentos y Especias', NULL);
 
--- Sub-categories (hierarchical)
+-- Sub-categories (hierarchical — parent_id references root UUIDs)
 INSERT INTO ingredient_categories (id, name, parent_id) VALUES
-  ('cat-101', 'Carnes rojas', 'cat-001'),
-  ('cat-102', 'Aves', 'cat-001'),
-  ('cat-103', 'Pescados y Mariscos', 'cat-001'),
-  ('cat-201', 'Verduras de hoja', 'cat-002'),
-  ('cat-202', 'Verduras de fruto', 'cat-002'),
-  ('cat-301', 'Frutas tropicales', 'cat-003'),
-  ('cat-401', 'Granos y semillas', 'cat-004');
+  ('a0000000-0000-0000-0000-000000000101', 'Carnes rojas',       'a0000000-0000-0000-0000-000000000001'),
+  ('a0000000-0000-0000-0000-000000000102', 'Aves',               'a0000000-0000-0000-0000-000000000001'),
+  ('a0000000-0000-0000-0000-000000000103', 'Pescados y Mariscos','a0000000-0000-0000-0000-000000000001'),
+  ('a0000000-0000-0000-0000-000000000201', 'Verduras de hoja',   'a0000000-0000-0000-0000-000000000002'),
+  ('a0000000-0000-0000-0000-000000000202', 'Verduras de fruto',  'a0000000-0000-0000-0000-000000000002'),
+  ('a0000000-0000-0000-0000-000000000301', 'Frutas tropicales',  'a0000000-0000-0000-0000-000000000003'),
+  ('a0000000-0000-0000-0000-000000000401', 'Granos y semillas',  'a0000000-0000-0000-0000-000000000004');
 
--- Ingredients
+-- Ingredients (category_id references the sub-category UUIDs above)
 INSERT INTO ingredients (name, category_id, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g, fiber_per_100g, default_unit) VALUES
-  ('Pechuga de pollo', 'cat-102', 165, 31, 0, 3.6, 0, 'g'),
-  ('Carne molida de res', 'cat-101', 250, 26, 0, 17, 0, 'g'),
-  ('Filete de pescado', 'cat-103', 206, 22, 0, 12, 0, 'g'),
-  ('Salmón', 'cat-103', 208, 20, 0, 13, 0, 'g'),
-  ('Huevo', 'cat-006', 155, 13, 1.1, 11, 0, 'piece'),
-  ('Leche entera', 'cat-006', 61, 3.2, 4.8, 3.3, 0, 'ml'),
-  ('Queso fresco', 'cat-006', 300, 20, 2.5, 24, 0, 'g'),
-  ('Yogur natural', 'cat-006', 59, 3.5, 4.7, 3.3, 0, 'g'),
-  ('Aguacate', 'cat-202', 160, 2, 8.5, 14.7, 6.7, 'g'),
-  ('Jitomate', 'cat-202', 18, 0.9, 3.9, 0.2, 1.2, 'g'),
-  ('Cebolla blanca', 'cat-202', 40, 1.1, 9.3, 0.1, 1.7, 'g'),
-  ('Espinacas', 'cat-201', 23, 2.9, 3.6, 0.4, 2.2, 'g'),
-  ('Lechuga romana', 'cat-201', 17, 1.2, 3.3, 0.3, 2.1, 'g'),
-  ('Brócoli', 'cat-202', 34, 2.8, 7, 0.4, 2.6, 'g'),
-  ('Zanahoria', 'cat-202', 41, 0.9, 9.6, 0.2, 2.8, 'g'),
-  ('Calabacita', 'cat-202', 17, 1.2, 3.1, 0.3, 1, 'g'),
-  ('Chile poblano', 'cat-202', 20, 0.9, 4.2, 0.2, 1.5, 'g'),
-  ('Plátano', 'cat-301', 89, 1.1, 23, 0.3, 2.6, 'g'),
-  ('Manzana', 'cat-003', 52, 0.3, 14, 0.2, 2.4, 'piece'),
-  ('Naranja', 'cat-301', 47, 0.9, 12, 0.1, 2.4, 'piece'),
-  ('Papaya', 'cat-301', 43, 0.5, 11, 0.3, 1.7, 'g'),
-  ('Mango', 'cat-301', 60, 0.8, 15, 0.4, 1.6, 'g'),
-  ('Fresas', 'cat-301', 32, 0.7, 7.7, 0.3, 2, 'g'),
-  ('Arroz blanco', 'cat-004', 130, 2.7, 28, 0.3, 0.4, 'g'),
-  ('Arroz integral', 'cat-004', 111, 2.6, 23, 0.9, 1.8, 'g'),
-  ('Tortilla de maíz', 'cat-004', 218, 5.7, 45, 2.5, 6.3, 'piece'),
-  ('Pan de trigo integral', 'cat-004', 247, 13, 41, 3.4, 7, 'piece'),
-  ('Papa', 'cat-004', 77, 2, 17, 0.1, 2.2, 'piece'),
-  ('Camote', 'cat-004', 86, 1.6, 20, 0.1, 3, 'g'),
-  ('Avena', 'cat-004', 389, 17, 66, 6.9, 11, 'g'),
-  ('Quinoa', 'cat-401', 120, 4.4, 21, 1.9, 2.8, 'g'),
-  ('Frijoles negros', 'cat-005', 132, 8.9, 24, 0.5, 8.7, 'g'),
-  ('Frijoles bayos', 'cat-005', 127, 8.7, 23, 0.5, 8.3, 'g'),
-  ('Lentejas', 'cat-005', 116, 9, 20, 0.4, 7.9, 'g'),
-  ('Garbanzos', 'cat-005', 139, 8.9, 23, 2.6, 7.6, 'g'),
-  ('Aceite de oliva', 'cat-007', 884, 0, 0, 100, 0, 'tbsp'),
-  ('Aceite vegetal', 'cat-007', 884, 0, 0, 100, 0, 'tbsp'),
-  ('Sal de mesa', 'cat-008', 0, 0, 0, 0, 0, 'tsp'),
-  ('Pimienta negra', 'cat-008', 2, 0.1, 0.5, 0, 0.2, 'tsp'),
-  ('Comino', 'cat-008', 8, 0.4, 1.2, 0.5, 0.3, 'tsp'),
-  ('Ajo', 'cat-202', 149, 6.4, 33, 0.5, 2.1, 'piece'),
-  ('Epazote', 'cat-008', 1, 0.1, 0.2, 0, 0.1, 'g');
+  ('Pechuga de pollo',     'a0000000-0000-0000-0000-000000000102', 165, 31, 0, 3.6, 0, 'g'),
+  ('Carne molida de res',  'a0000000-0000-0000-0000-000000000101', 250, 26, 0, 17, 0, 'g'),
+  ('Filete de pescado',    'a0000000-0000-0000-0000-000000000103', 206, 22, 0, 12, 0, 'g'),
+  ('Salmón',               'a0000000-0000-0000-0000-000000000103', 208, 20, 0, 13, 0, 'g'),
+  ('Huevo',                'a0000000-0000-0000-0000-000000000006', 155, 13, 1.1, 11, 0, 'piece'),
+  ('Leche entera',         'a0000000-0000-0000-0000-000000000006', 61, 3.2, 4.8, 3.3, 0, 'ml'),
+  ('Queso fresco',         'a0000000-0000-0000-0000-000000000006', 300, 20, 2.5, 24, 0, 'g'),
+  ('Yogur natural',        'a0000000-0000-0000-0000-000000000006', 59, 3.5, 4.7, 3.3, 0, 'g'),
+  ('Aguacate',             'a0000000-0000-0000-0000-000000000202', 160, 2, 8.5, 14.7, 6.7, 'g'),
+  ('Jitomate',             'a0000000-0000-0000-0000-000000000202', 18, 0.9, 3.9, 0.2, 1.2, 'g'),
+  ('Cebolla blanca',       'a0000000-0000-0000-0000-000000000202', 40, 1.1, 9.3, 0.1, 1.7, 'g'),
+  ('Espinacas',            'a0000000-0000-0000-0000-000000000201', 23, 2.9, 3.6, 0.4, 2.2, 'g'),
+  ('Lechuga romana',       'a0000000-0000-0000-0000-000000000201', 17, 1.2, 3.3, 0.3, 2.1, 'g'),
+  ('Brócoli',              'a0000000-0000-0000-0000-000000000202', 34, 2.8, 7, 0.4, 2.6, 'g'),
+  ('Zanahoria',            'a0000000-0000-0000-0000-000000000202', 41, 0.9, 9.6, 0.2, 2.8, 'g'),
+  ('Calabacita',           'a0000000-0000-0000-0000-000000000202', 17, 1.2, 3.1, 0.3, 1, 'g'),
+  ('Chile poblano',        'a0000000-0000-0000-0000-000000000202', 20, 0.9, 4.2, 0.2, 1.5, 'g'),
+  ('Plátano',              'a0000000-0000-0000-0000-000000000301', 89, 1.1, 23, 0.3, 2.6, 'g'),
+  ('Manzana',              'a0000000-0000-0000-0000-000000000003', 52, 0.3, 14, 0.2, 2.4, 'piece'),
+  ('Naranja',              'a0000000-0000-0000-0000-000000000301', 47, 0.9, 12, 0.1, 2.4, 'piece'),
+  ('Papaya',               'a0000000-0000-0000-0000-000000000301', 43, 0.5, 11, 0.3, 1.7, 'g'),
+  ('Mango',                'a0000000-0000-0000-0000-000000000301', 60, 0.8, 15, 0.4, 1.6, 'g'),
+  ('Fresas',               'a0000000-0000-0000-0000-000000000301', 32, 0.7, 7.7, 0.3, 2, 'g'),
+  ('Arroz blanco',         'a0000000-0000-0000-0000-000000000004', 130, 2.7, 28, 0.3, 0.4, 'g'),
+  ('Arroz integral',       'a0000000-0000-0000-0000-000000000004', 111, 2.6, 23, 0.9, 1.8, 'g'),
+  ('Tortilla de maíz',     'a0000000-0000-0000-0000-000000000004', 218, 5.7, 45, 2.5, 6.3, 'piece'),
+  ('Pan de trigo integral','a0000000-0000-0000-0000-000000000004', 247, 13, 41, 3.4, 7, 'piece'),
+  ('Papa',                 'a0000000-0000-0000-0000-000000000004', 77, 2, 17, 0.1, 2.2, 'piece'),
+  ('Camote',               'a0000000-0000-0000-0000-000000000004', 86, 1.6, 20, 0.1, 3, 'g'),
+  ('Avena',                'a0000000-0000-0000-0000-000000000004', 389, 17, 66, 6.9, 11, 'g'),
+  ('Quinoa',               'a0000000-0000-0000-0000-000000000401', 120, 4.4, 21, 1.9, 2.8, 'g'),
+  ('Frijoles negros',      'a0000000-0000-0000-0000-000000000005', 132, 8.9, 24, 0.5, 8.7, 'g'),
+  ('Frijoles bayos',       'a0000000-0000-0000-0000-000000000005', 127, 8.7, 23, 0.5, 8.3, 'g'),
+  ('Lentejas',             'a0000000-0000-0000-0000-000000000005', 116, 9, 20, 0.4, 7.9, 'g'),
+  ('Garbanzos',            'a0000000-0000-0000-0000-000000000005', 139, 8.9, 23, 2.6, 7.6, 'g'),
+  ('Aceite de oliva',      'a0000000-0000-0000-0000-000000000007', 884, 0, 0, 100, 0, 'tbsp'),
+  ('Aceite vegetal',       'a0000000-0000-0000-0000-000000000007', 884, 0, 0, 100, 0, 'tbsp'),
+  ('Sal de mesa',          'a0000000-0000-0000-0000-000000000008', 0, 0, 0, 0, 0, 'tsp'),
+  ('Pimienta negra',       'a0000000-0000-0000-0000-000000000008', 2, 0.1, 0.5, 0, 0.2, 'tsp'),
+  ('Comino',               'a0000000-0000-0000-0000-000000000008', 8, 0.4, 1.2, 0.5, 0.3, 'tsp'),
+  ('Ajo',                  'a0000000-0000-0000-0000-000000000202', 149, 6.4, 33, 0.5, 2.1, 'piece'),
+  ('Epazote',              'a0000000-0000-0000-0000-000000000008', 1, 0.1, 0.2, 0, 0.1, 'g');
 
 -- Sample recipe (only if users exist)
 DO $$
+DECLARE
+  first_user UUID;
 BEGIN
-  IF EXISTS (SELECT 1 FROM auth.users LIMIT 1) THEN
-    INSERT INTO recipes (id, created_by, name, description, instructions, servings, is_quick)
-    SELECT 'rec-001', id, 'Pollo a la plancha con verduras', 'Pechuga de pollo salteada con calabacitas y jitomate', E'1. Sazona la pechuga con sal y pimienta\n2. Cocina en sartén con aceite de oliva 5 min por lado\n3. Agrega calabacita y jitomate picados\n4. Saltea 3 min más\n5. Sirve caliente', 1, false
-    FROM auth.users
-    LIMIT 1;
+  SELECT id INTO first_user FROM auth.users LIMIT 1;
+  IF first_user IS NOT NULL THEN
+    INSERT INTO recipes (created_by, name, description, instructions, servings, is_quick)
+    VALUES (first_user, 'Pollo a la plancha con verduras', 'Pechuga de pollo salteada con calabacitas y jitomate',
+      E'1. Sazona la pechuga con sal y pimienta\n2. Cocina en sartén con aceite de oliva 5 min por lado\n3. Agrega calabacita y jitomate picados\n4. Saltea 3 min más\n5. Sirve caliente',
+      1, false);
   END IF;
 END $$;
