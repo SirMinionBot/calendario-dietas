@@ -11,14 +11,24 @@ import {
 import { es } from 'date-fns/locale'
 
 /**
+ * Converts profile week_start_day (1=Monday ... 7=Sunday) to date-fns
+ * weekStartsOn (0=Sunday, 1=Monday ... 6=Saturday).
+ */
+function profileWeekStartToDateFns(profileDay: number): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+  // profile: 1→Mon, 2→Tue, 3→Wed, 4→Thu, 5→Fri, 6→Sat, 7→Sun
+  // date-fns: 0→Sun, 1→Mon, 2→Tue, 3→Wed, 4→Thu, 5→Fri, 6→Sat
+  return (profileDay % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6
+}
+
+/**
  * Returns the start (inclusive) and end (inclusive) of the week containing `date`.
- * @param weekStartDay 0=Sunday, 1=Monday, ..., 6=Saturday
+ * @param weekStartDay Profile format: 1=Monday, 2=Tuesday, ..., 7=Sunday
  */
 export function getWeekRange(
   date: Date,
   weekStartDay: number = 1,
 ): { start: Date; end: Date } {
-  const options = { weekStartsOn: weekStartDay as 0 | 1 | 2 | 3 | 4 | 5 | 6 }
+  const options = { weekStartsOn: profileWeekStartToDateFns(weekStartDay) }
   return {
     start: startOfWeek(date, options),
     end: endOfWeek(date, options),
