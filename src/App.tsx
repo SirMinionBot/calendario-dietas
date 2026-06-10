@@ -14,6 +14,7 @@ import RecipeListPage from './pages/RecipeList'
 import RecipeDetailPage from './pages/RecipeDetail'
 import RecipeFormPage from './pages/RecipeForm'
 import IngredientListPage from './pages/IngredientList'
+import IngredientFormPage from './pages/IngredientForm'
 import ProfilePage from './pages/Profile'
 
 const queryClient = new QueryClient({
@@ -51,6 +52,14 @@ export default function App() {
                 <Route
                   path="/ingredients"
                   element={<IngredientListPage />}
+                />
+                <Route
+                  path="/ingredients/new"
+                  element={<IngredientFormPage />}
+                />
+                <Route
+                  path="/ingredients/:id/edit"
+                  element={<IngredientFormPage />}
                 />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
