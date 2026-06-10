@@ -7,6 +7,22 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      ;(function () {
+        // Restore SPA path after GitHub Pages 404 redirect
+        const redirect = sessionStorage.redirect
+        if (redirect) {
+          sessionStorage.removeItem('redirect')
+          const dest = new URL(redirect)
+          const base = '/calendario-dietas'
+          const path = dest.pathname.replace(base, '') || '/'
+          const full = base + path + dest.search + dest.hash
+          if (full !== location.pathname + location.search + location.hash) {
+            history.replaceState(null, '', full)
+          }
+        }
+      })()
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
