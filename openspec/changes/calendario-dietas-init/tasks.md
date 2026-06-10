@@ -38,14 +38,14 @@ Chain strategy: feature-branch-chain
 
 ## Phase 2: Data Layer
 
-- [ ] 2.1 Write `supabase/migrations/001_initial.sql` with profiles, ingredient_categories, ingredients, recipes, recipe_ingredients, meal_entries — all FKs + RLS
-- [ ] 2.2 Create hooks: `use-ingredients.ts`, `use-recipes.ts`, `use-meal-entries.ts` with TanStack Query
-- [ ] 2.3 Create `src/pages/IngredientList.tsx` + `IngredientTable.tsx` with search + category filter
-- [ ] 2.4 Create `src/pages/RecipeList.tsx` + `src/pages/RecipeDetail.tsx` with NutritionPanel
-- [ ] 2.5 Create `src/pages/RecipeForm.tsx` + `src/components/forms/RecipeForm.tsx` with ingredient picker
-- [ ] 2.6 Create `src/components/ingredients/CategoryFilter.tsx` for hierarchical category tree
-- [ ] 2.7 Create `src/pages/IngredientForm.tsx` + `src/components/forms/IngredientForm.tsx`
-- [ ] 2.8 Add ~50 seed ingredients with hierarchical categories in migration
+- [x] 2.1 Write `supabase/migrations/001_initial.sql` with profiles, ingredient_categories, ingredients, recipes, recipe_ingredients, meal_entries — all FKs + RLS
+- [x] 2.2 Create hooks: `use-ingredients.ts`, `use-recipes.ts`, `use-meal-entries.ts` with TanStack Query
+- [x] 2.3 Create `src/pages/IngredientList.tsx` + `IngredientTable.tsx` with search + category filter
+- [x] 2.4 Create `src/pages/RecipeList.tsx` + `src/pages/RecipeDetail.tsx` with NutritionPanel (placeholder)
+- [x] 2.5 Create `src/pages/RecipeForm.tsx` + `src/components/forms/RecipeForm.tsx` with ingredient picker
+- [x] 2.6 Create `src/components/ingredients/CategoryFilter.tsx` for hierarchical category tree
+- [x] 2.7 Create `src/pages/IngredientForm.tsx` + `src/components/forms/IngredientForm.tsx`
+- [x] 2.8 Add ~42 seed ingredients with hierarchical categories in migration
 
 ## Phase 3: Calendar & Planning
 
