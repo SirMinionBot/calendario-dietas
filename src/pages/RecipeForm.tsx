@@ -52,6 +52,7 @@ export default function RecipeFormPage() {
           ingredients,
         })
       } else {
+        if (!user) throw new Error('You must be logged in to create a recipe')
         await createMutation.mutateAsync({
           recipe: {
             name: recipe.name,
@@ -64,6 +65,7 @@ export default function RecipeFormPage() {
             is_quick: recipe.is_quick,
           },
           ingredients,
+          userId: user.id,
         })
       }
 

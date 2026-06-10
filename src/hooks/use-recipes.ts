@@ -90,14 +90,16 @@ export function useCreateRecipe() {
     mutationFn: async ({
       recipe,
       ingredients,
+      userId,
     }: {
       recipe: Omit<Recipe, 'id' | 'created_by' | 'created_at' | 'updated_at'>
       ingredients: RecipeFormIngredient[]
+      userId: string
     }) => {
       // Insert recipe
       const { data: newRecipe, error: recipeError } = await supabase
         .from('recipes')
-        .insert(recipe)
+        .insert({ ...recipe, created_by: userId })
         .select()
         .single()
 
