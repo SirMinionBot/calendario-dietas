@@ -20,9 +20,19 @@ import {
 } from '../hooks/use-meal-entries'
 import type { MealEntryWithRecipe } from '../hooks/use-meal-entries'
 import WeekGrid from '../components/planning/WeekGrid'
+import WeeklyScorePanel from '../components/planning/WeeklyScorePanel'
 import MealDetailDrawer from '../components/planning/MealDetailDrawer'
 import RecipeSelectorModal from '../components/planning/RecipeSelectorModal'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
+import {
+  computeRecipeNutrition,
+  computeMealNutrition,
+  computeDayNutrition,
+  computeWeekNutrition,
+  scoreWeek,
+  DEFAULT_GOALS,
+} from '../lib/nutrition'
+import type { MacroValues, WeekNutrition, WeeklyScore } from '../lib/nutrition'
 
 type MealSlot = 'desayuno' | 'comida' | 'cena'
 
@@ -77,6 +87,77 @@ export default function PlanningPage() {
     }
     return grouped
   }, [weekEntries])
+
+  // ── Nutrition computation ──
+
+  // Count special-diet days
+  const specialDayDates = useMemo(() => {
+    if (!weekEntries) return new Set<string>()
+    const special = new Set<string>()
+    for (const entry of weekEntries) {
+      if (entry.meal_entry_type !== 'normal') {
+        special.add(entry.date)
+      }
+    }
+    return special
+  }, [weekEntries])
+
+  // Compute week nutrition from normal entries only
+  const weekNutrition = useMemo<WeekNutrition | null>(() => {
+    if (!weekEntries || currentWeekDates.length === 0) return null
+
+    // Get per-entry nutrition for normal entries only
+    const normalEntryNutrition = weekEntries
+      .filter((e) => e.meal_entry_type === 'normal')
+      .map((entry) => {
+        const ingredients = entry.recipe.ingredients
+        if (!ingredients || ingredients.length === 0) return null
+
+        const perServing = computeRecipeNutrition(
+          ingredients.map((i) => ({
+            ingredient: {
+              calories_per_100g: i.ingredient.calories_per_100g,
+              protein_per_100g: i.ingredient.protein_per_100g,
+              carbs_per_100g: i.ingredient.carbs_per_100g,
+              fat_per_100g: i.ingredient.fat_per_100g,
+              fiber_per_100g: i.ingredient.fiber_per_100g,
+            },
+            quantity: i.quantity,
+          })),
+          entry.recipe.servings,
+        )
+
+        return {
+          date: entry.date,
+          mealSlot: entry.meal_slot,
+          nutrition: computeMealNutrition(perServing, entry.servings),
+        }
+      })
+      .filter(Boolean) as { date: string; mealSlot: string; nutrition: MacroValues }[]
+
+    // Group by day, create 7 DayNutrition entries
+    const days = currentWeekDates.map((date) => {
+      const dateStr = formatDate(date)
+      const dayEntries = normalEntryNutrition.filter((e) => e.date === dateStr)
+      return computeDayNutrition(dayEntries.map((e) => ({ nutrition: e.nutrition })))
+    })
+
+    return computeWeekNutrition(days)
+  }, [weekEntries, currentWeekDates])
+
+  // Compute weekly score
+  const goals: MacroValues = useMemo(() => ({
+    calories: profile?.daily_calorie_goal ?? DEFAULT_GOALS.calories,
+    protein: DEFAULT_GOALS.protein,
+    carbs: DEFAULT_GOALS.carbs,
+    fat: DEFAULT_GOALS.fat,
+    fiber: DEFAULT_GOALS.fiber,
+  }), [profile])
+
+  const weeklyScore = useMemo<WeeklyScore | null>(() => {
+    if (!weekNutrition) return null
+    return scoreWeek(weekNutrition, goals)
+  }, [weekNutrition, goals])
 
   // Mutations
   const createMealEntry = useCreateMealEntry()
@@ -222,13 +303,17 @@ export default function PlanningPage() {
               <p className="text-xs text-stone-400">Días</p>
             </div>
           </div>
-          <div className="text-right text-xs text-stone-400">
-            <p>Puntaje semanal</p>
-            <p className="text-lg font-bold text-stone-300">--</p>
-            <p className="text-[10px]">(Work Unit 4)</p>
-          </div>
         </div>
       </div>
+
+      {/* Weekly Score Panel */}
+      <WeeklyScorePanel
+        score={weeklyScore ?? { overall: 0, categories: { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }, daysTracked: 0, daysInRange: 7 }}
+        goals={goals}
+        specialDaysCount={specialDayDates.size}
+        loading={isLoading}
+        empty={!isLoading && (!weekEntries || weekEntries.length === 0)}
+      />
 
       {/* Week grid */}
       {isLoading ? (

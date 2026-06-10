@@ -1,5 +1,9 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import type { MealEntryWithRecipe } from '../../hooks/use-meal-entries'
+import {
+  computeRecipeNutrition,
+  computeMealNutrition,
+} from '../../lib/nutrition'
 
 const MEAL_LABELS: Record<string, string> = {
   desayuno: 'Desayuno',
@@ -44,6 +48,25 @@ export default function MealSlotCell({
   onClick,
   onDelete,
 }: MealSlotCellProps) {
+  // Compute meal calories from recipe ingredients
+  const mealCalories = useMemo(() => {
+    if (!entry?.recipe.ingredients || entry.recipe.ingredients.length === 0) return null
+    const perServing = computeRecipeNutrition(
+      entry.recipe.ingredients.map((i) => ({
+        ingredient: {
+          calories_per_100g: i.ingredient.calories_per_100g,
+          protein_per_100g: i.ingredient.protein_per_100g,
+          carbs_per_100g: i.ingredient.carbs_per_100g,
+          fat_per_100g: i.ingredient.fat_per_100g,
+          fiber_per_100g: i.ingredient.fiber_per_100g,
+        },
+        quantity: i.quantity,
+      })),
+      entry.recipe.servings,
+    )
+    return computeMealNutrition(perServing, entry.servings).calories
+  }, [entry])
+
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handlePointerDown = () => {
@@ -117,6 +140,13 @@ export default function MealSlotCell({
       {entry.servings !== 1 && (
         <span className="mt-1 text-[9px] text-stone-400">
           {entry.servings}×
+        </span>
+      )}
+
+      {/* Compact calorie display */}
+      {mealCalories !== null && (
+        <span className="mt-auto pt-1 text-[9px] font-medium text-stone-400">
+          {Math.round(mealCalories)} kcal
         </span>
       )}
     </div>

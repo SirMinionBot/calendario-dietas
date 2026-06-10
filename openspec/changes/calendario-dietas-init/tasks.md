@@ -62,9 +62,9 @@ Chain strategy: feature-branch-chain
 
 ## Phase 4: Nutrition & Scoring
 
-- [ ] 4.1 Create `src/lib/nutrition.ts` — pure fns: computeServingNutrition, computeMealNutrition, computeDayTotals, computeWeekTotals
-- [ ] 4.2 Create `src/components/recipes/NutritionPanel.tsx` with calorie ring + macro progress bars
-- [ ] 4.3 Implement scoreWeek(macros, goals) with per-category (0–100%) + overall equal-weight score
-- [ ] 4.4 Create `WeeklyScorePanel.tsx` with green/yellow/red indicators, special-day exclusion filter
-- [ ] 4.5 Create `public/404.html` for SPA routing + configure `vite.config.ts` base path for GH Pages
-- [ ] 4.6 Wire scoring into Planning page, handle partial-week proportional goals
+- [x] 4.1 Create `src/lib/nutrition.ts` — pure fns: computeServingNutrition, computeMealNutrition, computeDayTotals, computeWeekTotals
+- [x] 4.2 Create `src/components/recipes/NutritionPanel.tsx` with calorie ring + macro progress bars
+- [x] 4.3 Implement scoreWeek(macros, goals) with per-category (0–100%) + overall equal-weight score
+- [x] 4.4 Create `WeeklyScorePanel.tsx` with green/yellow/red indicators, special-day exclusion filter
+- [x] 4.5 Create `public/404.html` for SPA routing + configure `vite.config.ts` base path for GH Pages
+- [x] 4.6 Wire scoring into Planning page, handle partial-week proportional goals

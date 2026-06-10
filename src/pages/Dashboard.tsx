@@ -3,7 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { useMealEntriesByDate } from '../hooks/use-meal-entries'
 import type { MealEntryWithRecipe } from '../hooks/use-meal-entries'
 import { useAuth } from '../hooks/use-auth'
+import { useProfile } from '../hooks/use-profile'
 import EmptyState from '../components/shared/EmptyState'
+import NutritionPanel from '../components/recipes/NutritionPanel'
+import {
+  computeRecipeNutrition,
+  computeMealNutrition,
+  computeDayNutrition,
+  DEFAULT_GOALS,
+} from '../lib/nutrition'
+import type { MacroValues } from '../lib/nutrition'
 import { formatDate, formatDisplayDate, capitalize } from '../lib/date-utils'
 
 const MEAL_SLOT_LABELS: Record<string, string> = {
@@ -51,12 +60,58 @@ export default function DashboardPage() {
     return map
   }, [entries])
 
+  const { data: profile } = useProfile()
+
   const hasEntries = entries && entries.length > 0
 
   // Count entries per slot (for quick stats)
   const slotsWithMeals = MEAL_SLOT_ORDER.filter((slot) =>
     entriesBySlot.has(slot),
   ).length
+
+  // Compute today's nutrition
+  const todayNutrition = useMemo<MacroValues | null>(() => {
+    if (!entries || entries.length === 0) return null
+
+    const mealNutritions = entries.map((entry) => {
+      const ingredients = entry.recipe.ingredients
+      if (!ingredients || ingredients.length === 0) return null
+
+      const perServing = computeRecipeNutrition(
+        ingredients.map((i) => ({
+          ingredient: {
+            calories_per_100g: i.ingredient.calories_per_100g,
+            protein_per_100g: i.ingredient.protein_per_100g,
+            carbs_per_100g: i.ingredient.carbs_per_100g,
+            fat_per_100g: i.ingredient.fat_per_100g,
+            fiber_per_100g: i.ingredient.fiber_per_100g,
+          },
+          quantity: i.quantity,
+        })),
+        entry.recipe.servings,
+      )
+
+      return computeMealNutrition(perServing, entry.servings)
+    }).filter(Boolean) as MacroValues[]
+
+    if (mealNutritions.length === 0) return null
+    const day = computeDayNutrition(mealNutritions.map((m) => ({ nutrition: m })))
+    return {
+      calories: day.calories,
+      protein: day.protein,
+      carbs: day.carbs,
+      fat: day.fat,
+      fiber: day.fiber,
+    }
+  }, [entries])
+
+  const goals: MacroValues = useMemo(() => ({
+    calories: profile?.daily_calorie_goal ?? DEFAULT_GOALS.calories,
+    protein: DEFAULT_GOALS.protein,
+    carbs: DEFAULT_GOALS.carbs,
+    fat: DEFAULT_GOALS.fat,
+    fiber: DEFAULT_GOALS.fiber,
+  }), [profile])
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,32 +127,31 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Quick stats bar */}
-      <div className="rounded-xl border border-stone-200 bg-white p-4">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-stone-900">
-              {slotsWithMeals}
-            </p>
-            <p className="text-xs text-stone-400">Comidas</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-stone-300">--</p>
-            <p className="text-xs text-stone-400">Calorías</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-stone-300">--</p>
-            <p className="text-xs text-stone-400">Proteína</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-stone-300">--</p>
-            <p className="text-xs text-stone-400">Carbs</p>
+      {/* Nutrition stats */}
+      {todayNutrition ? (
+        <NutritionPanel
+          macros={todayNutrition}
+          goals={goals}
+          showGoals={true}
+        />
+      ) : (
+        <div className="rounded-xl border border-stone-200 bg-white p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-stone-900">
+                {slotsWithMeals}
+              </p>
+              <p className="text-xs text-stone-400">Comidas</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-stone-900">
+                {slotsWithMeals}/3
+              </p>
+              <p className="text-xs text-stone-400">Planeadas</p>
+            </div>
           </div>
         </div>
-        <p className="mt-2 text-center text-xs text-stone-400">
-          Los macros aparecerán cuando se implemente el motor de nutrición
-        </p>
-      </div>
+      )}
 
       {/* Meal slots */}
       {isLoading ? (

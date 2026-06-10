@@ -1,6 +1,13 @@
+import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/use-auth'
 import { useRecipe, useDeleteRecipe } from '../hooks/use-recipes'
+import NutritionPanel from '../components/recipes/NutritionPanel'
+import {
+  computeRecipeNutrition,
+  DEFAULT_GOALS,
+} from '../lib/nutrition'
+import type { MacroValues } from '../lib/nutrition'
 
 export default function RecipeDetailPage() {
   const { id } = useParams()
@@ -8,6 +15,26 @@ export default function RecipeDetailPage() {
   const { user } = useAuth()
   const { data: recipe, isLoading, error } = useRecipe(id)
   const deleteMutation = useDeleteRecipe()
+
+  // Compute per-serving nutrition
+  const recipeNutrition = useMemo<MacroValues | null>(() => {
+    if (!recipe?.ingredients || recipe.ingredients.length === 0) return null
+    return computeRecipeNutrition(
+      recipe.ingredients.map((ri) => ({
+        ingredient: {
+          calories_per_100g: ri.ingredient.calories_per_100g,
+          protein_per_100g: ri.ingredient.protein_per_100g,
+          carbs_per_100g: ri.ingredient.carbs_per_100g,
+          fat_per_100g: ri.ingredient.fat_per_100g,
+          fiber_per_100g: ri.ingredient.fiber_per_100g,
+        },
+        quantity: ri.quantity,
+      })),
+      recipe.servings,
+    )
+  }, [recipe])
+
+  const nutritionGoals: MacroValues = DEFAULT_GOALS
 
   const isOwner = user && recipe?.created_by === user.id
 
@@ -111,15 +138,14 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      {/* Nutrition Panel (placeholder — full in Work Unit 4) */}
-      <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-        <h3 className="text-sm font-semibold text-stone-700">
-          Nutrition per Serving
-        </h3>
-        <p className="mt-1 text-xs text-stone-400">
-          Nutrition computation will be available in a future update.
-        </p>
-      </div>
+      {/* Nutrition Panel */}
+      {recipeNutrition && (
+        <NutritionPanel
+          macros={recipeNutrition}
+          goals={nutritionGoals}
+          showGoals={true}
+        />
+      )}
 
       {/* Ingredients */}
       <div>

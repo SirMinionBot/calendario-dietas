@@ -13,6 +13,19 @@ export const mealEntryKeys = {
 
 // ── Types ────────────────────────────────────────────
 
+/** Ingredient data embedded in meal entries for nutrition computation */
+export interface MealEntryRecipeIngredient {
+  id: string
+  quantity: number
+  ingredient: {
+    calories_per_100g: number
+    protein_per_100g: number
+    carbs_per_100g: number
+    fat_per_100g: number
+    fiber_per_100g: number
+  }
+}
+
 export interface MealEntryWithRecipe extends MealEntry {
   recipe: {
     id: string
@@ -20,6 +33,7 @@ export interface MealEntryWithRecipe extends MealEntry {
     servings: number
     is_quick: boolean
     image_url: string | null
+    ingredients?: MealEntryRecipeIngredient[]
   }
 }
 
@@ -31,7 +45,18 @@ export function useMealEntriesByDateRange(start: string, end: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('meal_entries')
-        .select('*, recipe:recipe_id(id, name, servings, is_quick, image_url)')
+        .select(
+          `*, recipe:recipe_id(
+            id, name, servings, is_quick, image_url,
+            ingredients:recipe_ingredients(
+              id, quantity,
+              ingredient:ingredient_id(
+                calories_per_100g, protein_per_100g,
+                carbs_per_100g, fat_per_100g, fiber_per_100g
+              )
+            )
+          )`,
+        )
         .gte('date', start)
         .lte('date', end)
         .order('date', { ascending: true })
@@ -49,7 +74,18 @@ export function useMealEntriesByDate(date: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('meal_entries')
-        .select('*, recipe:recipe_id(id, name, servings, is_quick, image_url)')
+        .select(
+          `*, recipe:recipe_id(
+            id, name, servings, is_quick, image_url,
+            ingredients:recipe_ingredients(
+              id, quantity,
+              ingredient:ingredient_id(
+                calories_per_100g, protein_per_100g,
+                carbs_per_100g, fat_per_100g, fiber_per_100g
+              )
+            )
+          )`,
+        )
         .eq('date', date)
         .order('meal_slot')
 
