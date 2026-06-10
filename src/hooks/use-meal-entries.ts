@@ -8,6 +8,7 @@ export const mealEntryKeys = {
   all: ['meal-entries'] as const,
   range: (start: string, end: string) =>
     ['meal-entries', 'range', start, end] as const,
+  date: (date: string) => ['meal-entries', 'date', date] as const,
 }
 
 // ── Types ────────────────────────────────────────────
@@ -39,6 +40,23 @@ export function useMealEntriesByDateRange(start: string, end: string) {
       return data as MealEntryWithRecipe[]
     },
     enabled: !!start && !!end,
+  })
+}
+
+export function useMealEntriesByDate(date: string) {
+  return useQuery({
+    queryKey: mealEntryKeys.date(date),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('meal_entries')
+        .select('*, recipe:recipe_id(id, name, servings, is_quick, image_url)')
+        .eq('date', date)
+        .order('meal_slot')
+
+      if (error) throw error
+      return data as MealEntryWithRecipe[]
+    },
+    enabled: !!date,
   })
 }
 
