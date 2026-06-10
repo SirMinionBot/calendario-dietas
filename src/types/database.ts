@@ -40,19 +40,23 @@ export const ingredientCategorySchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(100),
   parent_id: z.string().uuid().nullable(),
-  user_id: z.string().uuid().nullable(),
   created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
 })
 
 export type IngredientCategory = z.infer<typeof ingredientCategorySchema>
+
+export const ingredientCategoryTreeSchema = ingredientCategorySchema.extend({
+  children: z.array(z.lazy(() => ingredientCategorySchema)).default([]),
+})
+export type IngredientCategoryTree = z.infer<typeof ingredientCategoryTreeSchema>
 
 // ── Ingredients ──────────────────────────────────────
 
 export const ingredientSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(200),
-  category_id: z.string().uuid(),
-  user_id: z.string().uuid().nullable(),
+  category_id: z.string().uuid().nullable(),
   calories_per_100g: z.number().min(0),
   protein_per_100g: z.number().min(0),
   carbs_per_100g: z.number().min(0),
@@ -64,6 +68,21 @@ export const ingredientSchema = z.object({
 })
 
 export type Ingredient = z.infer<typeof ingredientSchema>
+
+export const ingredientFormSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(200),
+  category_id: z.string().uuid('Select a category').nullable().optional(),
+  calories_per_100g: z.coerce.number().min(0, 'Must be >= 0'),
+  protein_per_100g: z.coerce.number().min(0, 'Must be >= 0').default(0),
+  carbs_per_100g: z.coerce.number().min(0, 'Must be >= 0').default(0),
+  fat_per_100g: z.coerce.number().min(0, 'Must be >= 0').default(0),
+  fiber_per_100g: z.coerce.number().min(0, 'Must be >= 0').default(0),
+  default_unit: z.string().min(1, 'Select a unit'),
+})
+
+export type IngredientForm = z.infer<typeof ingredientFormSchema>
+
+export const INGREDIENT_UNITS = ['g', 'ml', 'piece', 'tsp', 'tbsp', 'cup'] as const
 
 // ── Recipes ──────────────────────────────────────────
 
@@ -97,13 +116,24 @@ export const recipeFormSchema = z.object({
 
 export type RecipeForm = z.infer<typeof recipeFormSchema>
 
+export interface RecipeFormIngredient {
+  ingredient_id: string
+  ingredient_name: string
+  quantity: number
+  unit: string
+  notes?: string
+  sort_order: number
+}
+
+export const RECIPE_UNITS = ['g', 'ml', 'piece', 'tsp', 'tbsp', 'cup'] as const
+
 // ── Recipe Ingredients ───────────────────────────────
 
 export const recipeIngredientSchema = z.object({
   id: z.string().uuid(),
   recipe_id: z.string().uuid(),
   ingredient_id: z.string().uuid(),
-  quantity: z.number().min(0),
+  quantity: z.number().min(0.01),
   unit: z.string().min(1).max(50),
   notes: z.string().nullable(),
   sort_order: z.number().int().min(0),
