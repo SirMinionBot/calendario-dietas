@@ -49,16 +49,16 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Calendar & Planning
 
-- [ ] 3.1 Create `src/lib/date-utils.ts` with getWeekRange, weekStart helpers
-- [ ] 3.2 Create `src/pages/Dashboard.tsx` with today's meals + mini NutritionPanel
-- [ ] 3.3 Create `src/pages/Planning.tsx` with week selector, 7×3 grid, meal slot assignment
-- [ ] 3.4 Create `WeekGrid.tsx`, `MealSlotCell.tsx`, `MealDetailDrawer.tsx` in `components/planning/`
-- [ ] 3.5 Create `RecipeSelectorModal.tsx` with recipe search + inline QuickRecipeForm
-- [ ] 3.6 Create `src/pages/Calendar.tsx` with month view, tappable day cells with meal dots
-- [ ] 3.7 Create `CalendarNavBar.tsx`, `MonthView.tsx`, `DayCell.tsx` in `components/calendar/`
-- [ ] 3.8 Implement special days: meal_entry_type badge, exclude-from-scoring per entry
-- [ ] 3.9 Wire meal entry CRUD: assign recipe, servings multiplier (0.01–100), notes
-- [ ] 3.10 Create `QuickRecipeForm.tsx` with is_quick flag, auto-assign on save
+- [x] 3.1 Create `src/lib/date-utils.ts` with getWeekRange, weekStart helpers
+- [x] 3.2 Create `src/pages/Dashboard.tsx` with today's meals + mini NutritionPanel (macros placeholder for WU4)
+- [x] 3.3 Create `src/pages/Planning.tsx` with week selector, 7×3 grid, meal slot assignment
+- [x] 3.4 Create `WeekGrid.tsx`, `MealSlotCell.tsx`, `MealDetailDrawer.tsx` in `components/planning/`
+- [x] 3.5 Create `RecipeSelectorModal.tsx` with recipe search + inline QuickRecipeForm
+- [x] 3.6 Create `src/pages/Calendar.tsx` with month view, tappable day cells with meal dots
+- [x] 3.7 Create `CalendarNavBar.tsx`, `MonthView.tsx`, `DayCell.tsx` in `components/calendar/`
+- [x] 3.8 Implement special days: meal_entry_type badge (colored), picker in drawer
+- [x] 3.9 Wire meal entry CRUD: assign recipe, servings multiplier (0.25–10, step 0.25), notes
+- [x] 3.10 Create `QuickRecipeForm.tsx` with is_quick flag, auto-assign on save
 
 ## Phase 4: Nutrition & Scoring
 
